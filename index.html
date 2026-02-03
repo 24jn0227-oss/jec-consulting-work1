@@ -1,0 +1,25 @@
+<div class="contact-form shadow-lg fade-in">
+    <form action="contact.php" method="post">
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label for="name" class="form-label">お名前 <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="name" name="name" required placeholder="例：山田 太郎">
+            </div>
+            <div class="col-md-6 mb-3">
+                <label for="email" class="form-label">メールアドレス <span class="text-danger">*</span></label>
+                <input type="email" class="form-control" id="email" name="email" required placeholder="例：info@example.com">
+            </div>
+        </div>
+        <div class="mb-3">
+            <label for="subject" class="form-label">件名</label>
+            <input type="text" class="form-control" id="subject" name="subject" placeholder="ご相談内容の概要">
+        </div>
+        <div class="mb-4">
+            <label for="message" class="form-label">お問い合わせ内容 <span class="text-danger">*</span></label>
+            <textarea class="form-control" id="message" name="message" rows="5" required placeholder="具体的な内容をご記入ください"></textarea>
+        </div>
+        <div class="text-center">
+            <button type="submit" class="btn btn-custom w-50">送信する</button>
+        </div>
+    </form>
+</div>
