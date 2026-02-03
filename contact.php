@@ -4,50 +4,60 @@
 // タイムゾーンの設定
 date_default_timezone_set('Asia/Tokyo');
 
+// エラーを表示する設定（デバッグ用）
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
+
 // POSTリクエストの場合のみ処理を実行
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
-    // データの取得とサニタイズ（セキュリティ対策）
+    // データの取得とサニタイズ
     $name    = htmlspecialchars($_POST['name'] ?? '', ENT_QUOTES, 'UTF-8');
     $email   = htmlspecialchars($_POST['email'] ?? '', ENT_QUOTES, 'UTF-8');
     $subject = htmlspecialchars($_POST['subject'] ?? '', ENT_QUOTES, 'UTF-8');
     $message = htmlspecialchars($_POST['message'] ?? '', ENT_QUOTES, 'UTF-8');
     $date    = date("Y/m/d H:i:s");
 
-    // CSVに保存するデータの配列
+    // CSVに保存するデータ
     $data = [$date, $name, $email, $subject, $message];
 
-    // CSVファイルのパス
-    $csv_file = 'contacts.csv';
+    // ★重要：ファイルの場所を「絶対パス」で指定する
+    // __DIR__ はこのPHPファイルがあるフォルダを指します
+    $csv_file = __DIR__ . '/contacts.csv';
+
+    // 書き込みチェック（デバッグ用）
+    if (!is_writable(__DIR__)) {
+        echo "<h1>エラー：書き込み権限がありません</h1>";
+        echo "<p>フォルダ: " . __DIR__ . " に書き込む許可がありません。</p>";
+        exit;
+    }
 
     // ファイルを開く（追記モード 'a'）
-    // ファイルが存在しない場合は自動で作成されます
     $fp = fopen($csv_file, 'a');
 
     if ($fp) {
-        // ロック（排他制御）
         if (flock($fp, LOCK_EX)) {
-            // CSVフォーマットで書き込み
-            // fputcsvはカンマや改行を自動で適切に処理します
             fputcsv($fp, $data);
-            
-            // ロック解除
             flock($fp, LOCK_UN);
         }
         fclose($fp);
 
-        // 送信完了画面を表示、またはリダイレクト
-        // ここでは簡易的にJavaScriptでアラートを出して戻る処理にします
+        // 成功時の処理
         echo "<script>
                 alert('お問い合わせありがとうございます。送信が完了しました。');
                 window.location.href = 'index.html';
               </script>";
     } else {
-        echo "エラーが発生しました。データを保存できませんでした。";
+        // 失敗時のエラー表示
+        echo "<h1>システムエラー</h1>";
+        echo "<p>CSVファイルを開けませんでした。</p>";
+        echo "<p>保存先パス: " . $csv_file . "</p>";
+        echo "<p>エラー詳細: ";
+        print_r(error_get_last());
+        echo "</p>";
     }
 
 } else {
-    // POST以外でのアクセス時はトップへ戻す
     header("Location: index.html");
     exit;
 }
